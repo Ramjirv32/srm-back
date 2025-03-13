@@ -13,18 +13,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const secret = process.env.JWT_SECRET;
-app.use(cors( 'https://srm-corrections-hy91.vercel.app'));
-// Fix CORS configuration to properly include all allowed origins
+
+// Fixed CORS configuration with proper array of allowed origins
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
- ,
- 
+  'https://srm-corrections-hy91.vercel.app',
+  'https://srm-back.vercel.app'
 ];
 
+// Single consolidated CORS configuration
 app.use(cors({
   origin: function(origin, callback) {
-
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -39,9 +39,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// Remove the conflicting/duplicate CORS middleware
-// app.use(cors('https://srm-back.vercel.app')) - this line is removed
-
+// Enable pre-flight requests for all routes
 app.options('*', cors());
 
 mongoose.connect(process.env.MONGODB_URI)
