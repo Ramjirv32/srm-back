@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 const secret = process.env.JWT_SECRET;
 
 const allowedOrigins = [
+    
   'http://localhost:5173',
   'http://localhost:3000'
 ];
@@ -126,7 +127,7 @@ const sendOTPEmail = async (email, otp) => {
     return transporter.sendMail(mailOptions);
 };
 
-// JWT verification middleware
+
 const verifyJWT = (req, res, next) => {
     const token = req.headers["authorization"];
     if (!token) {
@@ -186,7 +187,7 @@ app.post("/login", async (req, res) => {
             success: false, 
             message: "An error occurred during login",
             error: error.message 
-        });/
+        });
     }
 });
 
@@ -295,7 +296,7 @@ app.get('/verify-email', async (req, res) => {
         
         console.log("Valid token found, updating user verification status");
         
-        // Update user verification status
+        
         user.verified = true;
         user.verificationToken = undefined;
         user.verificationExpires = undefined;
@@ -370,6 +371,10 @@ app.post('/verify-email-token', async (req, res) => {
         });
     }
 });
+
+app.get("/",()=>{
+    res.send("Welcome to SRM Server");
+})
 
 // Forgot password route
 app.post('/forgot-password', async (req, res) => {
