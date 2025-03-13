@@ -13,13 +13,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const secret = process.env.JWT_SECRET;
-
+app.use(cors( 'https://srm-corrections-hy91.vercel.app'));
 // Fix CORS configuration to properly include all allowed origins
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://srm-corrections-hy91.vercel.app',
-  'https://srm-back.vercel.app'
+ ,
+ 
 ];
 
 app.use(cors({
