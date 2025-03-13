@@ -65,7 +65,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Update the verification email function to use base64-encoded JSON data
+
 const sendVerificationEmail = async (email, token) => {
     console.log(`Sending verification email to ${email} with token: ${token}`);
     
