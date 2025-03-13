@@ -239,6 +239,9 @@ app.post('/signin', async (req, res) => {
     }
 });
 
+app.get("/",(req,res)=>{
+    res.send("this is srm server");
+})
 // Email verification endpoint (legacy format)
 app.get('/verify-email', async (req, res) => {
     const { token } = req.query;
