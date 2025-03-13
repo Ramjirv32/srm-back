@@ -80,7 +80,7 @@ const sendVerificationEmail = async (email, token) => {
     const encodedData = Buffer.from(JSON.stringify(verificationData)).toString('base64');
     
     // Create verification URL with encoded data
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify?data=${encodedData}`;
+    const verificationUrl = `${process.env.FRONTEND_URL || 'https://srm-corrections-hy91.vercel.app'}/verify?data=${encodedData}`;
     console.log("Verification URL created");
     
     const mailOptions = {
