@@ -13,15 +13,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const secret = process.env.JWT_SECRET;
-app.use(cors('https://srm-back.vercel.app'))
+app.use(cors( 'https://srm-corrections-hy91.vercel.app'));
+// Fix CORS configuration to properly include all allowed origins
 const allowedOrigins = [
-    
   'http://localhost:5173',
-  'http://localhost:3000'
+  'http://localhost:3000',
+ ,
+ 
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
+
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -35,6 +38,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Remove the conflicting/duplicate CORS middleware
+// app.use(cors('https://srm-back.vercel.app')) - this line is removed
 
 app.options('*', cors());
 
@@ -74,7 +80,7 @@ const sendVerificationEmail = async (email, token) => {
     const encodedData = Buffer.from(JSON.stringify(verificationData)).toString('base64');
     
     // Create verification URL with encoded data
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify?data=${encodedData}`;
+    const verificationUrl = `https://srm-corrections-hy91.vercel.app/verify?data=${encodedData}`;
     console.log("Verification URL created");
     
     const mailOptions = {
@@ -239,9 +245,11 @@ app.post('/signin', async (req, res) => {
     }
 });
 
-app.get("/",(req,res)=>{
-    res.send("this is srm server");
-})
+// Fix duplicate route handler for root endpoint
+app.get("/", (req, res) => {
+    res.send("Welcome to SRM Server");
+});
+
 // Email verification endpoint (legacy format)
 app.get('/verify-email', async (req, res) => {
     const { token } = req.query;
@@ -374,10 +382,6 @@ app.post('/verify-email-token', async (req, res) => {
         });
     }
 });
-
-app.get("/",()=>{
-    res.send("Welcome to SRM Server");
-})
 
 // Forgot password route
 app.post('/forgot-password', async (req, res) => {
