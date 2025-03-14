@@ -74,7 +74,7 @@ const sendVerificationEmail = async (email, token) => {
         timestamp: Date.now()
     };
     
-    // Encode the data as base64 to make it more compact
+   
     const encodedData = Buffer.from(JSON.stringify(verificationData)).toString('base64');
     
     // Create verification URL with encoded data
