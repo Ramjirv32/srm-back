@@ -14,28 +14,26 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const secret = process.env.JWT_SECRET;
 
+// Remove the single line cors configuration
+// app.use(cors('http://localhost:5173')); <- Remove this line
+
 const allowedOrigins = [
-    
   'http://localhost:5173',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://srm-corrections-hy91.vercel.app',
+  'https://srm-back.vercel.app'
 ];
 
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: allowedOrigins,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 }));
 
 app.use(express.json());
 
+// Enable pre-flight requests for all routes
 app.options('*', cors());
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -50,7 +48,7 @@ mongoose.connect(process.env.MONGODB_URI)
         process.exit(1);
     });
 
-// Create nodemailer transporter
+
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -59,7 +57,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Update the verification email function to use base64-encoded JSON data
+
 const sendVerificationEmail = async (email, token) => {
     console.log(`Sending verification email to ${email} with token: ${token}`);
     
@@ -70,11 +68,11 @@ const sendVerificationEmail = async (email, token) => {
         timestamp: Date.now()
     };
     
-    // Encode the data as base64 to make it more compact
+   
     const encodedData = Buffer.from(JSON.stringify(verificationData)).toString('base64');
     
     // Create verification URL with encoded data
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify?data=${encodedData}`;
+    const verificationUrl = `https://srm-corrections-hy91.vercel.app/verify?data=${encodedData}`;
     console.log("Verification URL created");
     
     const mailOptions = {
@@ -239,6 +237,11 @@ app.post('/signin', async (req, res) => {
     }
 });
 
+// Fix duplicate route handler for root endpoint
+app.get("/", (req, res) => {
+    res.send("Welcome to SRM Server");
+});
+
 // Email verification endpoint (legacy format)
 app.get('/verify-email', async (req, res) => {
     const { token } = req.query;
@@ -372,10 +375,6 @@ app.post('/verify-email-token', async (req, res) => {
     }
 });
 
-app.get("/",()=>{
-    res.send("Welcome to SRM Server");
-})
-
 // Forgot password route
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
@@ -465,7 +464,7 @@ app.post('/resend-verification', async (req, res) => {
         user.verificationExpires = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
         await user.save();
         
-        // Send the verification email
+        
         await sendVerificationEmail(email, verificationToken);
         
         return res.status(200).json({ 
@@ -523,6 +522,16 @@ app.get('/debug/tokens', async (req, res) => {
             error: error.message 
         });
     }
+});
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 app.listen(PORT, () => {
