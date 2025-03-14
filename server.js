@@ -410,7 +410,7 @@ app.post('/forgot-password', async (req, res) => {
     }
 });
 
-// Reset password route
+
 app.post('/reset-password', async (req, res) => {
     const { email, otp, newPassword } = req.body;
     try {
