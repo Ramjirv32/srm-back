@@ -14,8 +14,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const secret = process.env.JWT_SECRET;
 
-app.use(cors('http://localhost:5173'));
-// Fixed CORS configuration with proper array of allowed origins
+// Remove the single line cors configuration
+// app.use(cors('http://localhost:5173')); <- Remove this line
+
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -23,19 +24,11 @@ const allowedOrigins = [
   'https://srm-back.vercel.app'
 ];
 
-// Single consolidated CORS configuration
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: allowedOrigins,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 }));
 
 app.use(express.json());
@@ -529,6 +522,16 @@ app.get('/debug/tokens', async (req, res) => {
             error: error.message 
         });
     }
+});
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 app.listen(PORT, () => {
