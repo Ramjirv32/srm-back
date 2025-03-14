@@ -468,7 +468,7 @@ app.post('/resend-verification', async (req, res) => {
         user.verificationExpires = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
         await user.save();
         
-        // Send the verification email
+        
         await sendVerificationEmail(email, verificationToken);
         
         return res.status(200).json({ 
